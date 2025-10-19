@@ -132,7 +132,7 @@ export default function Home() {
               { name: 'Comedy', icon: '😂', color: 'from-yellow-500 to-amber-500' },
               { name: 'Drama', icon: '🎭', color: 'from-indigo-500 to-blue-600' },
               { name: 'Documentary', icon: '📹', color: 'from-green-600 to-teal-600' },
-              { name: 'Experimental', icon: '🎨', color: 'from-fuchsia-500 to-pink-600' }
+              { name: 'Animation', icon: '🎨', color: 'from-fuchsia-500 to-pink-600' }
             ].map((genre, i) => (
               <div
                 key={i}
