@@ -5,9 +5,38 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 // ============================================
+// TYPES
+// ============================================
+interface Genre {
+  slug: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
+interface Tier {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  recommended?: boolean;
+}
+
+interface Duration {
+  seconds: number;
+  label: string;
+  price: {
+    script: string;
+    full: string;
+    premium: string;
+  };
+}
+
+// ============================================
 // DONNÉES DES GENRES
 // ============================================
-const GENRES = [
+const GENRES: Genre[] = [
   { slug: 'action', name: 'Action', icon: '💥', color: 'from-orange-400 to-red-500' },
   { slug: 'romance', name: 'Romance', icon: '💕', color: 'from-pink-400 to-rose-500' },
   { slug: 'sci-fi', name: 'Sci-Fi', icon: '🚀', color: 'from-cyan-400 to-blue-500' },
@@ -23,7 +52,7 @@ const GENRES = [
 // ============================================
 // TIERS DE SERVICE
 // ============================================
-const TIERS = [
+const TIERS: Tier[] = [
   {
     id: 'script_studio',
     name: 'Script Studio',
@@ -51,7 +80,7 @@ const TIERS = [
 // ============================================
 // DURÉES DISPONIBLES
 // ============================================
-const DURATIONS = [
+const DURATIONS: Duration[] = [
   { seconds: 15, label: '15 secondes', price: { script: 'Gratuit', full: '2,99€', premium: '14,99€' } },
   { seconds: 30, label: '30 secondes', price: { script: '1,99€', full: '5,99€', premium: '14,99€' } },
   { seconds: 60, label: '1 minute', price: { script: '2,99€', full: '9,99€', premium: '24,99€' } },
@@ -68,12 +97,12 @@ export default function CreatePage() {
   const searchParams = useSearchParams();
   
   // États du formulaire
-  const [selectedGenre, setSelectedGenre] = useState<string>('');
-  const [selectedTier, setSelectedTier] = useState<string>('full_production');
-  const [selectedDuration, setSelectedDuration] = useState<number>(60);
-  const [brief, setBrief] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedTier, setSelectedTier] = useState('full_production');
+  const [selectedDuration, setSelectedDuration] = useState(60);
+  const [brief, setBrief] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Pré-remplir le tier depuis l'URL
@@ -85,7 +114,7 @@ export default function CreatePage() {
   }, [searchParams]);
 
   // Calculer le prix actuel
-  const getCurrentPrice = () => {
+  const getCurrentPrice = (): string => {
     const duration = DURATIONS.find(d => d.seconds === selectedDuration);
     if (!duration) return 'N/A';
     
@@ -96,7 +125,7 @@ export default function CreatePage() {
   };
 
   // Validation du formulaire
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
     if (!selectedGenre) {
@@ -116,7 +145,7 @@ export default function CreatePage() {
   };
 
   // Soumission du formulaire
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -126,7 +155,6 @@ export default function CreatePage() {
     setIsSubmitting(true);
     
     try {
-      // TODO: Appeler l'API n8n webhook
       const payload = {
         genre: selectedGenre,
         tier: selectedTier,
@@ -138,7 +166,7 @@ export default function CreatePage() {
       
       console.log('Payload à envoyer:', payload);
       
-      // Simuler l'appel API (à remplacer par le vrai webhook n8n)
+      // Simuler l'appel API
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       alert('Vidéo en cours de création ! Vous recevrez un email à ' + email);
@@ -183,7 +211,7 @@ export default function CreatePage() {
               Créez votre vidéo IA 🎬
             </h1>
             <p className="text-xl text-gray-400">
-              Sélectionnez un genre, décrivez votre idée, et laissez l'IA faire le reste
+              Sélectionnez un genre, décrivez votre idée, et laissez l&apos;IA faire le reste
             </p>
           </div>
 
