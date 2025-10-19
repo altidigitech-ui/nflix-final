@@ -7,294 +7,387 @@ export default function Home() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
               <img
-                src="/logo-horizontale.png?v=2"
-                alt="NFLIX.io Logo"
+                src="/logo-horizontale.png"
+                alt="NFLIX.io logo"
                 className="h-12 w-auto"
               />
-              <span className="px-2 py-1 text-xs font-bold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="px-2 py-1 text-xs font-bold rounded-full bg-purple-500/30 text-purple-300 border border-purple-500/30">
                 BETA
               </span>
             </div>
-            <div className="hidden md:flex items-center gap-6">
-              <a href="#genres" className="text-gray-300 hover:text-white transition-colors">Genres</a>
-              <a href="#how-it-works" className="text-gray-300 hover:text-white transition-colors">Comment ça marche</a>
-              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Tarifs</a>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full font-semibold hover:scale-105 transition-transform">
+            
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#genres" className="text-gray-300 hover:text-white transition">
+                Genres
+              </a>
+              <a href="#how-it-works" className="text-gray-300 hover:text-white transition">
+                Comment ça marche
+              </a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition">
+                Tarifs
+              </a>
+              <a
+                href="/create"
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition"
+              >
                 Commencer
-              </button>
+              </a>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-purple-500/30 bg-purple-500/8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+      <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          {/* Badge système de genres */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full mb-8">
+            <span className="text-2xl">🎬</span>
+            <span className="text-sm text-purple-300 font-medium">
+              Système de genres cinématographiques disponible
             </span>
-            <span className="text-sm text-purple-300">🎬 Système de genres cinématographiques disponible</span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              From Script to Screen
-            </span>
+          {/* Titre principal */}
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            From Script to Screen
             <br />
-            <span className="text-white">in 60 Minutes</span>
+            in 60 Minutes
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto">
-            Transformez vos idées en vidéos cinématographiques avec l'IA. <span className="text-transparent bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text font-semibold">10 genres narratifs</span>, génération intelligente, montage automatique.
+          {/* Sous-titre */}
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+            Transformez vos idées en vidéos cinématographiques avec l&apos;IA.{" "}
+            <span className="text-purple-400 font-semibold">10 genres narratifs</span>,
+            génération intelligente, montage automatique.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full font-bold text-lg hover:scale-105 transition-transform">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <a
+              href="/create"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-bold rounded-full hover:shadow-2xl hover:shadow-purple-500/50 transition transform hover:scale-105"
+            >
               Créer ma première vidéo
-            </button>
-            <button className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg backdrop-blur-sm hover:bg-purple-500/10 transition-colors">
+            </a>
+            <a
+              href="#demo"
+              className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur text-white text-lg font-semibold rounded-full border border-white/20 hover:bg-white/20 transition"
+            >
               Voir la démo
-            </button>
+            </a>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {[
-              { number: '10', label: 'Genres disponibles', icon: '🎬' },
-              { number: '60', label: 'Minutes max', icon: '⏱️' },
-              { number: '100+', label: 'Films en base', icon: '🎥' },
-              { number: '99%', label: 'Satisfaction', icon: '⭐' }
-            ].map((stat, i) => (
-              <div key={i} className="p-6 rounded-2xl border border-purple-500/20 bg-black/40 backdrop-blur-sm hover:scale-105 transition-transform">
-                <div className="text-4xl mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  {stat.number}
+          {/* Video Demo (Placeholder) */}
+          <div className="max-w-5xl mx-auto">
+            <div className="relative aspect-video bg-gradient-to-br from-purple-900/50 to-blue-900/50 rounded-2xl border border-purple-500/30 shadow-2xl overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🎬</div>
+                  <p className="text-gray-400">Vidéo démo à venir</p>
                 </div>
-                <div className="text-sm text-gray-400">{stat.label}</div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 px-4 bg-black/20">
+      {/* Section Comment ça marche */}
+      <div id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-black/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Comment ça marche ?
             </h2>
             <p className="text-xl text-gray-400">
-              De l'idée à la vidéo finale en 4 étapes simples
+              4 étapes pour transformer votre idée en vidéo professionnelle
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { step: '01', title: 'Choisissez votre genre', desc: 'Sélectionnez parmi 10 genres narratifs (Action, Romance, Sci-Fi...)', icon: '🎭' },
-              { step: '02', title: 'Décrivez votre histoire', desc: 'Entrez votre idée - notre IA comprend et structure', icon: '✍️' },
-              { step: '03', title: 'L\'IA crée le script et les scènes', desc: 'Génération intelligente avec respect des codes du genre', icon: '🤖' },
-              { step: '04', title: 'Téléchargez votre vidéo', desc: 'Recevez votre film monté en 60 minutes', icon: '🎬' }
-            ].map((item, i) => (
-              <div key={i} className="relative">
-                <div className="text-6xl mb-4">{item.icon}</div>
-                <div className="text-sm font-mono text-purple-400 mb-2">ÉTAPE {item.step}</div>
-                <h3 className="text-xl font-bold mb-3 text-white">{item.title}</h3>
-                <p className="text-gray-400">{item.desc}</p>
+            {/* Étape 1 */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center text-4xl transform hover:scale-110 transition">
+                💥
               </div>
-            ))}
+              <h3 className="text-xl font-bold text-white mb-3">
+                1. Choisissez votre genre
+              </h3>
+              <p className="text-gray-400">
+                Action, Romance, Sci-Fi... 10 genres narratifs avec leurs codes cinématographiques
+              </p>
+            </div>
+
+            {/* Étape 2 */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center text-4xl transform hover:scale-110 transition">
+                ✍️
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">
+                2. Décrivez votre vidéo
+              </h3>
+              <p className="text-gray-400">
+                Brief de 2 lignes ou description détaillée, l&apos;IA s&apos;adapte
+              </p>
+            </div>
+
+            {/* Étape 3 */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-600 to-teal-600 rounded-2xl flex items-center justify-center text-4xl transform hover:scale-110 transition">
+                🤖
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">
+                3. L&apos;IA génère le scénario
+              </h3>
+              <p className="text-gray-400">
+                Structure narrative, découpage, prompts optimisés pour Sora/Veo/Runway
+              </p>
+            </div>
+
+            {/* Étape 4 */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-teal-600 to-purple-600 rounded-2xl flex items-center justify-center text-4xl transform hover:scale-110 transition">
+                🎬
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">
+                4. Recevez votre vidéo montée
+              </h3>
+              <p className="text-gray-400">
+                Montage automatique avec rythme, transitions et LUT adaptés au genre
+              </p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Genres Section */}
-      <section id="genres" className="py-20 px-4">
+      {/* Section Genres */}
+      <div id="genres" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              10 Genres Disponibles
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              10 Genres Cinématographiques
             </h2>
             <p className="text-xl text-gray-400">
-              Chaque genre avec ses codes narratifs, son rythme et son style visuel
+              Chaque genre avec sa propre structure narrative et son style visuel
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
-              { name: 'Action', icon: '💥', color: 'from-red-500 to-orange-500' },
-              { name: 'Romance', icon: '💕', color: 'from-pink-500 to-rose-500' },
-              { name: 'Sci-Fi', icon: '🚀', color: 'from-blue-500 to-cyan-500' },
-              { name: 'Fantasy', icon: '🧙', color: 'from-purple-500 to-violet-500' },
-              { name: 'Thriller', icon: '🔪', color: 'from-gray-600 to-slate-700' },
-              { name: 'Horror', icon: '👻', color: 'from-gray-800 to-black' },
-              { name: 'Comedy', icon: '😂', color: 'from-yellow-500 to-amber-500' },
-              { name: 'Drama', icon: '🎭', color: 'from-indigo-500 to-blue-600' },
-              { name: 'Documentary', icon: '📹', color: 'from-green-600 to-teal-600' },
-              { name: 'Animation', icon: '🎨', color: 'from-fuchsia-500 to-pink-600' }
-            ].map((genre, i) => (
+              { icon: "💥", name: "Action", color: "from-red-600 to-orange-600" },
+              { icon: "💕", name: "Romance", color: "from-pink-600 to-rose-600" },
+              { icon: "🚀", name: "Sci-Fi", color: "from-blue-600 to-cyan-600" },
+              { icon: "🧙", name: "Fantasy", color: "from-purple-600 to-pink-600" },
+              { icon: "🔪", name: "Thriller", color: "from-gray-700 to-gray-900" },
+              { icon: "👻", name: "Horror", color: "from-red-900 to-black" },
+              { icon: "😂", name: "Comedy", color: "from-yellow-600 to-orange-600" },
+              { icon: "🎭", name: "Drama", color: "from-indigo-600 to-purple-600" },
+              { icon: "📹", name: "Documentary", color: "from-green-600 to-teal-600" },
+              { icon: "🎨", name: "Experimental", color: "from-fuchsia-600 to-purple-600" },
+            ].map((genre, index) => (
               <div
-                key={i}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${genre.color} hover:scale-105 transition-transform cursor-pointer`}
+                key={index}
+                className={`relative group p-6 bg-gradient-to-br ${genre.color} rounded-2xl border border-white/10 hover:border-white/30 transition cursor-pointer transform hover:scale-105`}
               >
-                <div className="text-5xl mb-3">{genre.icon}</div>
-                <div className="text-lg font-bold text-white">{genre.name}</div>
+                <div className="text-center">
+                  <div className="text-5xl mb-3">{genre.icon}</div>
+                  <div className="text-white font-bold">{genre.name}</div>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 bg-black/20">
+      {/* Section Pricing */}
+      <div id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-black/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Tarifs Transparents
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Tarifs simples et transparents
             </h2>
             <p className="text-xl text-gray-400">
-              Du script DIY au montage premium tout-en-un
+              Choisissez l&apos;offre adaptée à vos besoins
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Script Studio */}
+            <div className="p-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-white/10">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Script Studio</h3>
+                <div className="text-4xl font-bold text-purple-400 mb-2">29€</div>
+                <div className="text-gray-400">par projet</div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Scénario complet structuré</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Découpage scène par scène</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Prompts Sora/Veo/Runway</span>
+                </li>
+              </ul>
+              <a
+                href="/create"
+                className="block w-full py-3 text-center bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition"
+              >
+                Choisir Script Studio
+              </a>
+            </div>
+
+            {/* Full Production */}
+            <div className="p-8 bg-gradient-to-br from-purple-900 to-blue-900 rounded-2xl border-2 border-purple-500 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-bold rounded-full">
+                POPULAIRE
+              </div>
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Full Production</h3>
+                <div className="text-4xl font-bold text-purple-400 mb-2">99€</div>
+                <div className="text-gray-400">par projet</div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Tout Script Studio +</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Montage vidéo automatique</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Transitions & LUT du genre</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Export HD prêt à publier</span>
+                </li>
+              </ul>
+              <a
+                href="/create"
+                className="block w-full py-3 text-center bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition"
+              >
+                Choisir Full Production
+              </a>
+            </div>
+
+            {/* Premium */}
+            <div className="p-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-white/10">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+                <div className="text-4xl font-bold text-purple-400 mb-2">199€</div>
+                <div className="text-gray-400">par projet</div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Tout Full Production +</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Révisions illimitées</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Support prioritaire 24/7</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl">✓</span>
+                  <span className="text-gray-300">Export 4K + fichiers sources</span>
+                </li>
+              </ul>
+              <a
+                href="/create"
+                className="block w-full py-3 text-center bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition"
+              >
+                Choisir Premium
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ */}
+      <div className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Questions Fréquentes
+            </h2>
+          </div>
+
+          <div className="space-y-6">
             {[
               {
-                name: 'Script Studio',
-                price: '2,99€',
-                desc: 'Vous montez vous-même',
-                features: ['✅ Scénario professionnel', '✅ Genre sélectionné', '✅ Prompts optimisés Sora/Veo', '✅ Export PDF + JSON', '❌ Pas de montage'],
-                cta: 'Commencer'
+                q: "C'est quoi NFLIX.io ?",
+                a: "NFLIX.io est un SaaS qui transforme vos idées en vidéos cinématographiques professionnelles grâce à l'IA. Vous choisissez un genre narratif, décrivez votre concept, et notre système génère automatiquement le scénario et peut même monter la vidéo finale.",
               },
               {
-                name: 'Full Production',
-                price: '9,99€',
-                desc: 'On monte pour vous',
-                popular: true,
-                features: ['✅ Tout du Script Studio', '✅ Montage adapté au genre', '✅ Transitions cohérentes', '✅ Color grading (LUTs)', '✅ Exports 16:9 + 9:16'],
-                cta: 'Commencer'
+                q: "Quelle est la différence entre les 3 tiers ?",
+                a: "Script Studio vous donne le scénario + prompts pour générer vous-même les vidéos. Full Production inclut le montage automatique. Premium ajoute révisions illimitées et support 24/7.",
               },
               {
-                name: 'Premium',
-                price: '24,99€',
-                desc: 'Service ultra-premium',
-                features: ['✅ Tout du Full Production', '✅ Voix-off IA réaliste', '✅ Musique genre-matched', '✅ SRT multi-langues', '✅ Livraison 48h'],
-                cta: 'Commencer'
-              }
-            ].map((plan, i) => (
+                q: "Combien de temps ça prend ?",
+                a: "Le scénario est généré en 2-5 minutes. Le montage vidéo complet prend 30-60 minutes selon la complexité.",
+              },
+              {
+                q: "Comment choisir le bon genre ?",
+                a: "Chaque genre a ses codes narratifs : Action pour l'intensité, Romance pour l'émotion, Sci-Fi pour l'innovation... Notre système vous guide dans le choix en fonction de votre brief.",
+              },
+              {
+                q: "Je peux modifier le scénario généré ?",
+                a: "Avec le tier Premium, oui ! Révisions illimitées incluses. Pour les autres tiers, vous pouvez relancer une génération.",
+              },
+            ].map((faq, index) => (
               <div
-                key={i}
-                className={`p-8 rounded-3xl border ${
-                  plan.popular
-                    ? 'border-purple-500 bg-gradient-to-b from-purple-500/10 to-transparent scale-105'
-                    : 'border-white/10 bg-black/40'
-                } backdrop-blur-sm relative`}
+                key={index}
+                className="p-6 bg-white/5 backdrop-blur rounded-xl border border-white/10 hover:border-white/20 transition"
               >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-sm font-bold">
-                    ⭐ POPULAIRE
-                  </div>
-                )}
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <p className="text-gray-400 mb-4">{plan.desc}</p>
-                <div className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  {plan.price}
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, j) => (
-                    <li key={j} className="text-sm text-gray-300">{feature}</li>
-                  ))}
-                </ul>
-                <button className={`w-full py-3 rounded-full font-bold ${
-                  plan.popular
-                    ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:scale-105'
-                    : 'border-2 border-purple-500/50 hover:bg-purple-500/10'
-                } transition-transform`}>
-                  {plan.cta}
-                </button>
+                <h3 className="text-xl font-bold text-white mb-3">{faq.q}</h3>
+                <p className="text-gray-400">{faq.a}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 px-4">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Questions Fréquentes
-          </h2>
-          <div className="space-y-4">
-            {[
-              { q: "C'est quoi NFLIX.io ?", a: "Une plateforme qui transforme vos idées en vidéos cinématographiques avec IA, en respectant les codes narratifs de chaque genre." },
-              { q: "Combien de temps ça prend ?", a: "Maximum 60 minutes de la commande à la livraison pour le tier Full Production." },
-              { q: "Comment choisir le bon genre ?", a: "Réfléchissez au ton de votre histoire : Action (rapide, dynamique), Romance (doux, émotionnel), Sci-Fi (futuriste), etc." },
-              { q: "Je peux modifier après ?", a: "Oui ! 1 révision incluse en Full Production, 2 en Premium." },
-              { q: "Quels formats de vidéo ?", a: "16:9 (YouTube) + 9:16 (TikTok/Reels) en Full Production. 1:1 et 4:5 en Premium." }
-            ].map((faq, i) => (
-              <details key={i} className="p-6 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm">
-                <summary className="font-bold cursor-pointer text-lg">{faq.q}</summary>
-                <p className="mt-4 text-gray-400">{faq.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-600/20 to-cyan-600/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-6">
-            Prêt à créer votre premier film ?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Rejoignez les créateurs qui transforment leurs idées en vidéos professionnelles
-          </p>
-          <button className="px-12 py-5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full font-bold text-xl hover:scale-105 transition-transform">
-            Commencer maintenant →
-          </button>
-        </div>
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-white/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <img src="/logo-horizontale.png?v=2" alt="NFLIX.io" className="h-10 w-auto mb-4" />
-              <p className="text-sm text-gray-400">From Script to Screen in 60 Minutes</p>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Produit</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#genres">Genres</a></li>
-                <li><a href="#pricing">Tarifs</a></li>
-                <li><a href="#">Exemples</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Ressources</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#">Documentation</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#">CGU</a></li>
-                <li><a href="#">Confidentialité</a></li>
-                <li><a href="#">Cookies</a></li>
-              </ul>
-            </div>
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-black/50 border-t border-white/10">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-6">
+            <img
+              src="/logo-horizontale.png"
+              alt="NFLIX.io"
+              className="h-8 mx-auto"
+            />
           </div>
-          <div className="pt-8 border-t border-white/10 text-center text-sm text-gray-400">
+          <p className="text-gray-400 mb-4">
+            From Script to Screen in 60 Minutes
+          </p>
+          <div className="flex justify-center gap-6 text-sm text-gray-500">
+            <a href="#" className="hover:text-white transition">
+              Mentions légales
+            </a>
+            <a href="#" className="hover:text-white transition">
+              CGV
+            </a>
+            <a href="#" className="hover:text-white transition">
+              Contact
+            </a>
+          </div>
+          <p className="text-gray-600 text-sm mt-6">
             © 2025 NFLIX.io - Tous droits réservés
-          </div>
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
+
+
