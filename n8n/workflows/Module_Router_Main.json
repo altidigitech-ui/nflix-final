@@ -1,0 +1,567 @@
+{
+  "name": "Module_Router_Main",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-project",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-receiver-001",
+      "name": "Webhook_Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "new-project"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "brief-validation",
+              "leftValue": "={{ $json.body.brief }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "genre-validation",
+              "leftValue": "={{ $json.body.genre }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "duration-validation",
+              "leftValue": "={{ $json.body.duration }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "tier-validation",
+              "leftValue": "={{ $json.body.tier }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "user-id-validation",
+              "leftValue": "={{ $json.body.user_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "data-validator-002",
+      "name": "Data_Validator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DATABASE_API_URL }}/projects",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "brief",
+              "value": "={{ $json.body.brief }}"
+            },
+            {
+              "name": "genre",
+              "value": "={{ $json.body.genre }}"
+            },
+            {
+              "name": "duration",
+              "value": "={{ $json.body.duration }}"
+            },
+            {
+              "name": "tier",
+              "value": "={{ $json.body.tier }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}"
+            },
+            {
+              "name": "status",
+              "value": "pending"
+            },
+            {
+              "name": "cultural_references",
+              "value": "={{ $json.body.cultural_references }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "save-to-database-003",
+      "name": "Save_To_Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.DATABASE_API_URL }}/users/{{ $json.body.user_id }}/credits",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "check-credits-004",
+      "name": "Check_Credits",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "credits-check",
+              "leftValue": "={{ $json.credits_balance }}",
+              "rightValue": "={{ $('Save_To_Database').item.json.credits_required }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "credits-validator-005",
+      "name": "Credits_Validator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "create_scenario",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create_scenario"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "upload_complete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "upload_complete"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "request_revision",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "request_revision"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-by-action-006",
+      "name": "Route_By_Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DATABASE_API_URL }}/queue",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "project_id",
+              "value": "={{ $('Save_To_Database').item.json.project_id }}"
+            },
+            {
+              "name": "queue_type",
+              "value": "scenario"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.body.tier === 'Premium' ? 1 : 5 }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}"
+            },
+            {
+              "name": "status",
+              "value": "queued"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ JSON.stringify($json.body) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "queue-scenario-007",
+      "name": "Queue_Scenario",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DATABASE_API_URL }}/queue",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "project_id",
+              "value": "={{ $('Save_To_Database').item.json.project_id }}"
+            },
+            {
+              "name": "queue_type",
+              "value": "montage"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.body.tier === 'Premium' ? 1 : 5 }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}"
+            },
+            {
+              "name": "status",
+              "value": "queued"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ JSON.stringify($json.body) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "queue-montage-008",
+      "name": "Queue_Montage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DATABASE_API_URL }}/queue",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "project_id",
+              "value": "={{ $('Save_To_Database').item.json.project_id }}"
+            },
+            {
+              "name": "queue_type",
+              "value": "revision"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.body.tier === 'Premium' ? 1 : 5 }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}"
+            },
+            {
+              "name": "status",
+              "value": "queued"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ JSON.stringify($json.body) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "queue-revision-009",
+      "name": "Queue_Revision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"queued\",\n  \"project_id\": $('Save_To_Database').item.json.project_id,\n  \"queue_type\": $json.queue_type,\n  \"estimated_time\": $json.body.tier === 'Premium' ? '5-10 minutes' : '15-30 minutes',\n  \"message\": \"Votre projet a été ajouté à la file d'attente avec succès\"\n} }}",
+        "options": {}
+      },
+      "id": "return-response-010",
+      "name": "Return_Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"error\",\n  \"error\": \"Invalid request data\",\n  \"message\": \"Les champs requis sont manquants: brief, genre, duration, tier, user_id\",\n  \"received_data\": $json.body\n} }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "error-invalid-data-011",
+      "name": "Error_Invalid_Data",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"error\",\n  \"error\": \"Insufficient credits\",\n  \"message\": \"Solde de crédits insuffisant pour cette opération\",\n  \"current_balance\": $json.credits_balance,\n  \"required_credits\": $('Save_To_Database').item.json.credits_required\n} }}",
+        "options": {
+          "responseCode": 402
+        }
+      },
+      "id": "error-insufficient-credits-012",
+      "name": "Error_Insufficient_Credits",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 400]
+    }
+  ],
+  "connections": {
+    "Webhook_Receiver": {
+      "main": [
+        [
+          {
+            "node": "Data_Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data_Validator": {
+      "main": [
+        [
+          {
+            "node": "Save_To_Database",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error_Invalid_Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save_To_Database": {
+      "main": [
+        [
+          {
+            "node": "Check_Credits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check_Credits": {
+      "main": [
+        [
+          {
+            "node": "Credits_Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Credits_Validator": {
+      "main": [
+        [
+          {
+            "node": "Route_By_Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error_Insufficient_Credits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route_By_Action": {
+      "main": [
+        [
+          {
+            "node": "Queue_Scenario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue_Montage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue_Revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue_Scenario": {
+      "main": [
+        [
+          {
+            "node": "Return_Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue_Montage": {
+      "main": [
+        [
+          {
+            "node": "Return_Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue_Revision": {
+      "main": [
+        [
+          {
+            "node": "Return_Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-21T00:00:00.000Z",
+  "versionId": "1"
+}
