@@ -1,0 +1,514 @@
+{
+  "name": "Health Monitor Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/rpc/health_check",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "check-database",
+      "name": "Check Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        450,
+        200
+      ],
+      "notes": "Ping Supabase database and measure response time"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Execute multiple API health checks\nconst checks = [];\nconst startTime = Date.now();\n\ntry {\n  // OpenAI Check\n  const openaiResponse = await fetch('https://api.openai.com/v1/models', {\n    headers: {\n      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`\n    },\n    signal: AbortSignal.timeout(5000)\n  });\n  checks.push({\n    service: 'OpenAI',\n    status: openaiResponse.ok ? 'healthy' : 'degraded',\n    statusCode: openaiResponse.status,\n    responseTime: Date.now() - startTime\n  });\n} catch (error) {\n  checks.push({\n    service: 'OpenAI',\n    status: 'down',\n    error: error.message\n  });\n}\n\ntry {\n  // Anthropic Check\n  const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {\n    method: 'GET',\n    headers: {\n      'x-api-key': process.env.ANTHROPIC_API_KEY,\n      'anthropic-version': '2023-06-01'\n    },\n    signal: AbortSignal.timeout(5000)\n  });\n  checks.push({\n    service: 'Anthropic',\n    status: anthropicResponse.ok || anthropicResponse.status === 405 ? 'healthy' : 'degraded',\n    statusCode: anthropicResponse.status,\n    responseTime: Date.now() - startTime\n  });\n} catch (error) {\n  checks.push({\n    service: 'Anthropic',\n    status: 'down',\n    error: error.message\n  });\n}\n\ntry {\n  // Shotstack Check\n  const shotstackResponse = await fetch('https://api.shotstack.io/v1/sources', {\n    headers: {\n      'x-api-key': process.env.SHOTSTACK_API_KEY\n    },\n    signal: AbortSignal.timeout(5000)\n  });\n  checks.push({\n    service: 'Shotstack',\n    status: shotstackResponse.ok ? 'healthy' : 'degraded',\n    statusCode: shotstackResponse.status,\n    responseTime: Date.now() - startTime\n  });\n} catch (error) {\n  checks.push({\n    service: 'Shotstack',\n    status: 'down',\n    error: error.message\n  });\n}\n\ntry {\n  // Resend Check\n  const resendResponse = await fetch('https://api.resend.com/domains', {\n    headers: {\n      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`\n    },\n    signal: AbortSignal.timeout(5000)\n  });\n  checks.push({\n    service: 'Resend',\n    status: resendResponse.ok ? 'healthy' : 'degraded',\n    statusCode: resendResponse.status,\n    responseTime: Date.now() - startTime\n  });\n} catch (error) {\n  checks.push({\n    service: 'Resend',\n    status: 'down',\n    error: error.message\n  });\n}\n\nreturn {\n  json: {\n    apiChecks: checks,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "check-apis",
+      "name": "Check APIs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        450,
+        350
+      ],
+      "notes": "Check health of OpenAI, Anthropic, Shotstack, and Resend APIs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/rpc/check_queue_health",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "time_threshold",
+              "value": "3600"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "check-queue",
+      "name": "Check Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        450,
+        500
+      ],
+      "notes": "Count stuck jobs (processing > 1 hour) and failed jobs"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/storage/v1/bucket/videos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "check-storage",
+      "name": "Check Storage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        450,
+        650
+      ],
+      "notes": "Check Supabase storage usage and alert if > 80%"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/rpc/get_error_summary",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "hours_back",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "check-errors",
+      "name": "Check Errors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        450,
+        800
+      ],
+      "notes": "Count errors in last hour and group by type"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate comprehensive health report\nconst items = $input.all();\n\n// Initialize report\nconst report = {\n  timestamp: new Date().toISOString(),\n  overallStatus: 'healthy',\n  services: {},\n  metrics: {},\n  issues: [],\n  alerts: []\n};\n\n// Process database check\nconst dbCheck = items.find(item => item.json.database);\nif (dbCheck) {\n  const responseTime = dbCheck.json.responseTime || 0;\n  report.services.database = {\n    status: responseTime < 1000 ? 'healthy' : responseTime < 3000 ? 'degraded' : 'down',\n    responseTime: `${responseTime}ms`\n  };\n  \n  if (responseTime >= 3000) {\n    report.issues.push('Database response time is critical');\n    report.overallStatus = 'down';\n  } else if (responseTime >= 1000) {\n    report.issues.push('Database response time is slow');\n    if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n  }\n}\n\n// Process API checks\nconst apiChecks = items.find(item => item.json.apiChecks);\nif (apiChecks && apiChecks.json.apiChecks) {\n  apiChecks.json.apiChecks.forEach(check => {\n    report.services[check.service.toLowerCase()] = {\n      status: check.status,\n      statusCode: check.statusCode,\n      responseTime: check.responseTime ? `${check.responseTime}ms` : 'N/A',\n      error: check.error || null\n    };\n    \n    if (check.status === 'down') {\n      report.issues.push(`${check.service} API is down: ${check.error}`);\n      report.overallStatus = 'down';\n    } else if (check.status === 'degraded') {\n      report.issues.push(`${check.service} API is degraded`);\n      if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n    }\n  });\n}\n\n// Process queue check\nconst queueCheck = items.find(item => item.json.stuckJobs !== undefined);\nif (queueCheck) {\n  const stuckJobs = queueCheck.json.stuckJobs || 0;\n  const failedJobs = queueCheck.json.failedJobs || 0;\n  \n  report.metrics.queue = {\n    stuckJobs,\n    failedJobs,\n    status: stuckJobs === 0 && failedJobs < 10 ? 'healthy' : failedJobs < 50 ? 'degraded' : 'down'\n  };\n  \n  if (stuckJobs > 0) {\n    report.issues.push(`${stuckJobs} jobs stuck in processing state`);\n    report.alerts.push({\n      severity: 'high',\n      message: `Queue has ${stuckJobs} stuck jobs`\n    });\n    if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n  }\n  \n  if (failedJobs >= 50) {\n    report.issues.push(`${failedJobs} failed jobs detected`);\n    report.overallStatus = 'down';\n  } else if (failedJobs >= 10) {\n    report.issues.push(`${failedJobs} failed jobs detected`);\n    if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n  }\n}\n\n// Process storage check\nconst storageCheck = items.find(item => item.json.storageUsage !== undefined);\nif (storageCheck) {\n  const usagePercent = storageCheck.json.storageUsage || 0;\n  \n  report.metrics.storage = {\n    usagePercent: `${usagePercent}%`,\n    status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded' : 'critical'\n  };\n  \n  if (usagePercent >= 90) {\n    report.issues.push(`Storage usage critical: ${usagePercent}%`);\n    report.alerts.push({\n      severity: 'critical',\n      message: `Storage usage at ${usagePercent}%`\n    });\n    report.overallStatus = 'down';\n  } else if (usagePercent >= 80) {\n    report.issues.push(`Storage usage high: ${usagePercent}%`);\n    report.alerts.push({\n      severity: 'warning',\n      message: `Storage usage at ${usagePercent}%`\n    });\n    if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n  }\n}\n\n// Process error check\nconst errorCheck = items.find(item => item.json.errorCount !== undefined);\nif (errorCheck) {\n  const errorCount = errorCheck.json.errorCount || 0;\n  const errorsByType = errorCheck.json.errorsByType || {};\n  \n  report.metrics.errors = {\n    lastHour: errorCount,\n    byType: errorsByType,\n    status: errorCount < 10 ? 'healthy' : errorCount < 50 ? 'degraded' : 'critical'\n  };\n  \n  if (errorCount >= 50) {\n    report.issues.push(`${errorCount} errors in last hour`);\n    report.overallStatus = 'down';\n  } else if (errorCount >= 10) {\n    report.issues.push(`${errorCount} errors in last hour`);\n    if (report.overallStatus === 'healthy') report.overallStatus = 'degraded';\n  }\n}\n\n// Add summary\nreport.summary = {\n  totalServices: Object.keys(report.services).length,\n  healthyServices: Object.values(report.services).filter(s => s.status === 'healthy').length,\n  degradedServices: Object.values(report.services).filter(s => s.status === 'degraded').length,\n  downServices: Object.values(report.services).filter(s => s.status === 'down').length,\n  totalIssues: report.issues.length,\n  totalAlerts: report.alerts.length\n};\n\nreturn {\n  json: report\n};"
+      },
+      "id": "generate-report",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        650,
+        500
+      ],
+      "notes": "Aggregate all health checks and generate comprehensive report"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-has-issues",
+              "leftValue": "={{ $json.overallStatus }}",
+              "rightValue": "healthy",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "if-issues",
+      "name": "If Issues Detected",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        850,
+        500
+      ],
+      "notes": "Check if there are any issues to alert on"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ALERT_CHAT_ID }}",
+        "text": "=🚨 **NFLIX Health Alert**\\n\\n**Status:** {{ $json.overallStatus.toUpperCase() }}\\n**Time:** {{ $json.timestamp }}\\n\\n**Issues:**\\n{{ $json.issues.map((issue, i) => `${i + 1}. ${issue}`).join('\\n') }}\\n\\n**Services Summary:**\\n✅ Healthy: {{ $json.summary.healthyServices }}\\n⚠️ Degraded: {{ $json.summary.degradedServices }}\\n❌ Down: {{ $json.summary.downServices }}\\n\\n**Metrics:**\\n- Queue: {{ $json.metrics.queue?.stuckJobs || 0 }} stuck, {{ $json.metrics.queue?.failedJobs || 0 }} failed\\n- Storage: {{ $json.metrics.storage?.usagePercent || 'N/A' }}\\n- Errors (1h): {{ $json.metrics.errors?.lastHour || 0 }}",
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-telegram-alert",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1050,
+        400
+      ],
+      "notes": "Send alert to Telegram channel/chat",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.ALERT_FROM_EMAIL || 'alerts@nflix.app' }}",
+        "toEmail": "={{ $env.ALERT_TO_EMAIL }}",
+        "subject": "=🚨 NFLIX Health Alert - {{ $json.overallStatus.toUpperCase() }}",
+        "emailFormat": "html",
+        "html": "=<!DOCTYPE html>\\n<html>\\n<head>\\n  <style>\\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\\n    .header { background: #f44336; color: white; padding: 20px; border-radius: 5px 5px 0 0; }\\n    .content { background: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; }\\n    .status { font-size: 24px; font-weight: bold; margin: 10px 0; }\\n    .status.healthy { color: #4caf50; }\\n    .status.degraded { color: #ff9800; }\\n    .status.down { color: #f44336; }\\n    .metric { background: white; padding: 10px; margin: 10px 0; border-left: 4px solid #2196F3; }\\n    .issue { background: #fff3cd; padding: 10px; margin: 5px 0; border-left: 4px solid #ff9800; }\\n    .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }\\n  </style>\\n</head>\\n<body>\\n  <div class=\\\"container\\\">\\n    <div class=\\\"header\\\">\\n      <h1>🚨 NFLIX Health Monitor Alert</h1>\\n    </div>\\n    <div class=\\\"content\\\">\\n      <p><strong>Time:</strong> {{ $json.timestamp }}</p>\\n      <p class=\\\"status {{ $json.overallStatus }}\\\">Status: {{ $json.overallStatus.toUpperCase() }}</p>\\n      \\n      <h2>Issues Detected:</h2>\\n      {{ $json.issues.map(issue => `<div class=\\\"issue\\\">⚠️ ${issue}</div>`).join('') }}\\n      \\n      <h2>Services Summary:</h2>\\n      <div class=\\\"metric\\\">\\n        ✅ Healthy Services: {{ $json.summary.healthyServices }}<br>\\n        ⚠️ Degraded Services: {{ $json.summary.degradedServices }}<br>\\n        ❌ Down Services: {{ $json.summary.downServices }}\\n      </div>\\n      \\n      <h2>Metrics:</h2>\\n      <div class=\\\"metric\\\">\\n        <strong>Queue:</strong><br>\\n        - Stuck Jobs: {{ $json.metrics.queue?.stuckJobs || 0 }}<br>\\n        - Failed Jobs: {{ $json.metrics.queue?.failedJobs || 0 }}\\n      </div>\\n      \\n      <div class=\\\"metric\\\">\\n        <strong>Storage:</strong> {{ $json.metrics.storage?.usagePercent || 'N/A' }}\\n      </div>\\n      \\n      <div class=\\\"metric\\\">\\n        <strong>Errors (Last Hour):</strong> {{ $json.metrics.errors?.lastHour || 0 }}\\n      </div>\\n      \\n      <div class=\\\"footer\\\">\\n        This is an automated alert from NFLIX Health Monitor.<br>\\n        Generated at {{ $json.timestamp }}\\n      </div>\\n    </div>\\n  </div>\\n</body>\\n</html>",
+        "options": {}
+      },
+      "id": "send-email-alert",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1050,
+        550
+      ],
+      "notes": "Send detailed alert email to team",
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/health_incidents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\\n  status: $json.overallStatus,\\n  issues: $json.issues,\\n  metrics: $json.metrics,\\n  services: $json.services,\\n  timestamp: $json.timestamp,\\n  alert_sent: true\\n} }}",
+        "options": {}
+      },
+      "id": "log-incident",
+      "name": "Log Incident",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1050,
+        700
+      ],
+      "notes": "Log incident to database for tracking and analysis"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/health_logs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\\n  status: $json.overallStatus,\\n  metrics: $json.metrics,\\n  services: $json.services,\\n  timestamp: $json.timestamp,\\n  issues_count: $json.issues.length\\n} }}",
+        "options": {}
+      },
+      "id": "log-health-check",
+      "name": "Log Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        850,
+        650
+      ],
+      "notes": "Always log health check results for historical tracking"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check APIs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Queue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Storage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Database": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check APIs": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Queue": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Storage": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Errors": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "If Issues Detected",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Issues Detected": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Incident",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "timezone": "UTC",
+    "saveExecutionProgress": true
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-21T00:00:00.000Z",
+      "updatedAt": "2025-10-21T00:00:00.000Z",
+      "id": "health-monitor",
+      "name": "health-monitor"
+    },
+    {
+      "createdAt": "2025-10-21T00:00:00.000Z",
+      "updatedAt": "2025-10-21T00:00:00.000Z",
+      "id": "monitoring",
+      "name": "monitoring"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "nflix-health-monitor"
+  },
+  "id": "health-monitor-workflow",
+  "versionId": "1.0.0",
+  "triggerCount": 1,
+  "active": false
+}
